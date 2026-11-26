@@ -1,0 +1,6 @@
+{
+  "agent": "reviewer",
+  "workers": ["code-checker"],
+  "skills": ["commit-message"],
+  "scripts": ["run-checks.sh"]
+}

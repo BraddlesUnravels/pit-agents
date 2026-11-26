@@ -10,25 +10,25 @@ git config --global pit.agentsRepo <url>
 
 ## Installed files
 
-| In this repository | Installed in the project |
-|---|---|
-| `<agent>/<x>.agent.md` | `.github/agents/<x>.agent.md` |
-| `skills/<skill>/**` | `.github/skills/<skill>/**` |
+| In this repository       | Installed in the project         |
+| ------------------------ | -------------------------------- |
+| `<agent>/<x>.agent.md`   | `.github/agents/<x>.agent.md`    |
+| `skills/<skill>/**`      | `.github/skills/<skill>/**`      |
 | `<agent>/scripts/<file>` | `.github/scripts/<agent>/<file>` |
 
 Agent files are installed flat, so every `.agent.md` filename must be unique across the repository. `pit` refuses symlinks and submodules inside agent and skill folders.
 
 ## Naming rules
 
-| Item | Rule |
-|---|---|
-| Agent and worker names | `^[A-Za-z0-9][A-Za-z0-9._-]*$`, with no `..`; use lowercase-hyphen names |
-| Agent folder | Must equal `agent` in its manifest; reserved names include `skills`, `tools`, `schema`, and `docs` |
-| Main agent file | `<agent>/<agent>.agent.md` |
-| Worker file | `<agent>/<worker>.agent.md`, listed in `workers` |
-| Skill folder | `skills/<skill>/`; lowercase letters, digits, and hyphens, at most 64 characters |
-| Skill entry point | `skills/<skill>/SKILL.md`; front matter `name` must equal the folder name |
-| Script | `<agent>/scripts/<file>`, listed in `scripts`; no subfolders and executable |
+| Item                   | Rule                                                                                               |
+| ---------------------- | -------------------------------------------------------------------------------------------------- |
+| Agent and worker names | `^[A-Za-z0-9][A-Za-z0-9._-]*$`, with no `..`; use lowercase-hyphen names                           |
+| Agent folder           | Must equal `agent` in its manifest; reserved names include `skills`, `tools`, `schema`, and `docs` |
+| Main agent file        | `<agent>/<agent>.agent.md`                                                                         |
+| Worker file            | `<agent>/<worker>.agent.md`, listed in `workers`                                                   |
+| Skill folder           | `skills/<skill>/`; lowercase letters, digits, and hyphens, at most 64 characters                   |
+| Skill entry point      | `skills/<skill>/SKILL.md`; front matter `name` must equal the folder name                          |
+| Script                 | `<agent>/scripts/<file>`, listed in `scripts`; no subfolders and executable                        |
 
 Every agent manifest uses only the supported keys: `agent`, `workers`, `skills`, `scripts`, and `uses`. The manifest's `agent` is required and must match its folder name.
 
@@ -56,4 +56,14 @@ An agent can declare a borrowed worker in `uses`, identifying the agent that own
 
 ## Validation
 
-Run `npm run validate` before committing. The validator checks manifests, agent and skill files, references, unique agent filenames, and committed executable script modes.
+Install dependencies with `npm install` (Node 24 or later). This also installs the
+Husky Git hooks.
+
+Run `npm run validate` before committing. The validator checks manifests, agent and
+skill files, references, unique agent filenames, and committed executable script
+modes. `npm test` runs this validator and discovers Node test files.
+
+Use `npm run format` to format supported files, including Markdown, and
+`npm run format:check` to check formatting without changes. `npm run lint` and
+`npm run typecheck` check the JavaScript and TypeScript tooling. The pre-push hook
+runs the formatting check, lint, typecheck, and tests; a failure blocks the push.

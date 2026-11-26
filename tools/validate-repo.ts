@@ -1,10 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import {
-  existsSync,
-  lstatSync,
-  readFileSync,
-  readdirSync,
-} from 'node:fs';
+import { existsSync, lstatSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { AgentManifest, WorkerUse } from './types.ts';
@@ -34,7 +29,9 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function isStringArray(value: unknown): value is string[] {
-  return Array.isArray(value) && value.every((item) => typeof item === 'string');
+  return (
+    Array.isArray(value) && value.every((item) => typeof item === 'string')
+  );
 }
 
 function hasDuplicates(values: string[]): boolean {
@@ -107,7 +104,10 @@ function parseManifest(path: string): AgentManifest | undefined {
             report(entryPath, `unknown key "${key}"`);
           }
         }
-        if (typeof value.agent !== 'string' || typeof value.worker !== 'string') {
+        if (
+          typeof value.agent !== 'string' ||
+          typeof value.worker !== 'string'
+        ) {
           report(entryPath, '"agent" and "worker" must be strings');
           return;
         }
@@ -153,7 +153,9 @@ function parseList(value: string): string[] | undefined {
   });
 }
 
-function parseFrontMatter(path: string): Map<string, FrontMatterValue> | undefined {
+function parseFrontMatter(
+  path: string,
+): Map<string, FrontMatterValue> | undefined {
   const lines = readFileSync(path, 'utf8').split(/\r?\n/);
   if (lines[0]?.trim() !== '---') {
     report(relative(root, path), 'missing YAML front matter');
@@ -173,12 +175,18 @@ function parseFrontMatter(path: string): Map<string, FrontMatterValue> | undefin
     }
     const match = /^([A-Za-z][A-Za-z0-9_-]*):(?:\s*(.*))?$/.exec(line);
     if (!match) {
-      report(`${relative(root, path)}:${index + 2}`, 'unsupported front matter syntax');
+      report(
+        `${relative(root, path)}:${index + 2}`,
+        'unsupported front matter syntax',
+      );
       continue;
     }
     const [, key, rawValue = ''] = match;
     if (values.has(key)) {
-      report(`${relative(root, path)}:${index + 2}`, `duplicate front matter key "${key}"`);
+      report(
+        `${relative(root, path)}:${index + 2}`,
+        `duplicate front matter key "${key}"`,
+      );
       continue;
     }
 
@@ -250,7 +258,10 @@ function validateSkills(): Set<string> {
     const skillPath = join(skillRoot, folder);
     skills.add(folder);
     if (!skillNamePattern.test(folder) || folder.length > 64) {
-      report(relative(root, skillPath), 'skill name must be lowercase letters, digits, or hyphens and at most 64 characters');
+      report(
+        relative(root, skillPath),
+        'skill name must be lowercase letters, digits, or hyphens and at most 64 characters',
+      );
     }
 
     const file = join(skillPath, 'SKILL.md');
@@ -263,10 +274,18 @@ function validateSkills(): Set<string> {
       continue;
     }
     if (frontMatter.get('name') !== folder) {
-      report(relative(root, file), `front matter name must equal skill folder "${folder}"`);
+      report(
+        relative(root, file),
+        `front matter name must equal skill folder "${folder}"`,
+      );
     }
     const description = frontMatter.get('description');
-    if (typeof description !== 'string' || description.trim() === '' || description === '|' || description === '>') {
+    if (
+      typeof description !== 'string' ||
+      description.trim() === '' ||
+      description === '|' ||
+      description === '>'
+    ) {
       report(relative(root, file), 'description must be present on one line');
     }
   }
@@ -283,7 +302,12 @@ function validateAgentFrontMatter(
     return undefined;
   }
   const description = frontMatter.get('description');
-  if (typeof description !== 'string' || description.trim() === '' || description === '|' || description === '>') {
+  if (
+    typeof description !== 'string' ||
+    description.trim() === '' ||
+    description === '|' ||
+    description === '>'
+  ) {
     report(relative(root, path), 'description must be present on one line');
   }
   if (isWorker) {
@@ -299,17 +323,25 @@ function validateAgentFrontMatter(
     if (frontMatterSkills !== undefined && !Array.isArray(frontMatterSkills)) {
       report(relative(root, path), '"skills" front matter must be a list');
     } else {
-      const actual = Array.isArray(frontMatterSkills) ? [...frontMatterSkills].sort() : [];
+      const actual = Array.isArray(frontMatterSkills)
+        ? [...frontMatterSkills].sort()
+        : [];
       const expected = [...manifestSkills].sort();
       if (JSON.stringify(actual) !== JSON.stringify(expected)) {
-        report(relative(root, path), 'front matter skills must match the manifest skills');
+        report(
+          relative(root, path),
+          'front matter skills must match the manifest skills',
+        );
       }
     }
   }
   return frontMatter;
 }
 
-function validateAgents(index: IndexEntry[], skillNames: Set<string>): AgentRecord[] {
+function validateAgents(
+  index: IndexEntry[],
+  skillNames: Set<string>,
+): AgentRecord[] {
   const records: AgentRecord[] = [];
   const topLevel = readdirSync(root, { withFileTypes: true });
 
@@ -333,20 +365,33 @@ function validateAgents(index: IndexEntry[], skillNames: Set<string>): AgentReco
       report(manifestRelative, `"agent" must equal folder name "${folder}"`);
     }
     if (!namePattern.test(manifest.agent)) {
-      report(manifestRelative, '"agent" does not follow the supported name format');
+      report(
+        manifestRelative,
+        '"agent" does not follow the supported name format',
+      );
     }
     if (reservedAgentNames.has(manifest.agent)) {
-      report(manifestRelative, `"${manifest.agent}" is a reserved agent folder name`);
+      report(
+        manifestRelative,
+        `"${manifest.agent}" is a reserved agent folder name`,
+      );
     }
-    records.push({ folder, path: agentPath, manifest, mainFrontMatter: undefined });
+    records.push({
+      folder,
+      path: agentPath,
+      manifest,
+      mainFrontMatter: undefined,
+    });
   }
 
-  const byName = new Map(records.map((record) => [record.manifest.agent, record]));
+  const byName = new Map(
+    records.map((record) => [record.manifest.agent, record]),
+  );
   const knownAgentFolders = new Set(records.map((record) => record.folder));
   const declaredAgentFiles = new Set<string>();
 
   for (const record of records) {
-    const { folder, path, manifest } = record;
+    const { path, manifest } = record;
     const manifestRelative = relative(root, join(path, 'agent.manifest.json'));
     const workers = manifest.workers ?? [];
     const skills = manifest.skills ?? [];
@@ -358,34 +403,60 @@ function validateAgents(index: IndexEntry[], skillNames: Set<string>): AgentReco
     ] as const) {
       for (const value of values) {
         if (!namePattern.test(value)) {
-          report(manifestRelative, `"${field}" entry "${value}" does not follow the supported name format`);
+          report(
+            manifestRelative,
+            `"${field}" entry "${value}" does not follow the supported name format`,
+          );
         }
       }
     }
     for (const worker of workers) {
       const workerPath = join(path, `${worker}.agent.md`);
       if (!isFile(workerPath)) {
-        report(manifestRelative, `worker file is missing: ${relative(root, workerPath)}`);
+        report(
+          manifestRelative,
+          `worker file is missing: ${relative(root, workerPath)}`,
+        );
       }
     }
     for (const skill of skills) {
       if (!skillNames.has(skill)) {
-        report(manifestRelative, `listed skill does not exist: skills/${skill}/SKILL.md`);
+        report(
+          manifestRelative,
+          `listed skill does not exist: skills/${skill}/SKILL.md`,
+        );
       }
     }
     for (const script of scripts) {
-      if (script === '' || script === '.' || script === '..' || script.includes('/') || script.includes('\\')) {
-        report(manifestRelative, `script must be a filename with no subfolders: "${script}"`);
+      if (
+        script === '' ||
+        script === '.' ||
+        script === '..' ||
+        script.includes('/') ||
+        script.includes('\\')
+      ) {
+        report(
+          manifestRelative,
+          `script must be a filename with no subfolders: "${script}"`,
+        );
         continue;
       }
       const scriptPath = join(path, 'scripts', script);
       if (!isFile(scriptPath)) {
-        report(manifestRelative, `listed script is missing: ${relative(root, scriptPath)}`);
+        report(
+          manifestRelative,
+          `listed script is missing: ${relative(root, scriptPath)}`,
+        );
         continue;
       }
-      const entry = index.find((item) => item.path === relative(root, scriptPath));
+      const entry = index.find(
+        (item) => item.path === relative(root, scriptPath),
+      );
       if (entry?.mode !== '100755') {
-        report(relative(root, scriptPath), 'script must be committed with mode 100755');
+        report(
+          relative(root, scriptPath),
+          'script must be committed with mode 100755',
+        );
       }
     }
 
@@ -393,9 +464,15 @@ function validateAgents(index: IndexEntry[], skillNames: Set<string>): AgentReco
     if (existsSync(scriptsPath)) {
       for (const entry of readdirSync(scriptsPath, { withFileTypes: true })) {
         if (entry.isDirectory()) {
-          report(relative(root, join(scriptsPath, entry.name)), 'script folders must not contain subfolders');
+          report(
+            relative(root, join(scriptsPath, entry.name)),
+            'script folders must not contain subfolders',
+          );
         } else if (entry.isFile() && !scripts.includes(entry.name)) {
-          report(relative(root, join(scriptsPath, entry.name)), 'script is not listed in the manifest');
+          report(
+            relative(root, join(scriptsPath, entry.name)),
+            'script is not listed in the manifest',
+          );
         }
       }
     }
@@ -409,7 +486,10 @@ function validateAgents(index: IndexEntry[], skillNames: Set<string>): AgentReco
       declaredAgentFiles.add(filePath);
       if (!isFile(filePath)) {
         if (fileName === `${manifest.agent}.agent.md`) {
-          report(manifestRelative, `main agent file is missing: ${relative(root, filePath)}`);
+          report(
+            manifestRelative,
+            `main agent file is missing: ${relative(root, filePath)}`,
+          );
         }
         continue;
       }
@@ -425,44 +505,71 @@ function validateAgents(index: IndexEntry[], skillNames: Set<string>): AgentReco
   }
 
   const agentFileNames = new Map<string, string>();
-  for (const filePath of walkFiles(root).filter((path) => path.endsWith('.agent.md'))) {
+  for (const filePath of walkFiles(root).filter((path) =>
+    path.endsWith('.agent.md'),
+  )) {
     const fileName = filePath.split(sep).at(-1) ?? filePath;
     const previousPath = agentFileNames.get(fileName);
     if (previousPath) {
-      report(relative(root, filePath), `agent filename collides with ${relative(root, previousPath)}`);
+      report(
+        relative(root, filePath),
+        `agent filename collides with ${relative(root, previousPath)}`,
+      );
     } else {
       agentFileNames.set(fileName, filePath);
     }
     if (!declaredAgentFiles.has(filePath)) {
-      report(relative(root, filePath), 'agent file is not listed as a main agent or worker');
+      report(
+        relative(root, filePath),
+        'agent file is not listed as a main agent or worker',
+      );
     }
   }
 
   for (const record of records) {
     for (const use of record.manifest.uses ?? []) {
       if (!namePattern.test(use.agent) || !namePattern.test(use.worker)) {
-        report(relative(root, join(record.path, 'agent.manifest.json')), 'uses names do not follow the supported name format');
+        report(
+          relative(root, join(record.path, 'agent.manifest.json')),
+          'uses names do not follow the supported name format',
+        );
       }
       if (use.agent === record.manifest.agent) {
-        report(relative(root, join(record.path, 'agent.manifest.json')), 'an agent cannot use its own worker');
+        report(
+          relative(root, join(record.path, 'agent.manifest.json')),
+          'an agent cannot use its own worker',
+        );
       }
       const target = byName.get(use.agent);
       if (!target || !(target.manifest.workers ?? []).includes(use.worker)) {
-        report(relative(root, join(record.path, 'agent.manifest.json')), `uses target does not exist or list worker: ${use.agent}/${use.worker}`);
+        report(
+          relative(root, join(record.path, 'agent.manifest.json')),
+          `uses target does not exist or list worker: ${use.agent}/${use.worker}`,
+        );
       }
     }
 
     if ((record.manifest.uses ?? []).length > 0) {
       const tools = record.mainFrontMatter?.get('tools');
       if (!Array.isArray(tools) || !tools.includes('agent')) {
-        report(relative(root, join(record.path, `${record.manifest.agent}.agent.md`)), 'agents using workers must include "agent" in tools');
+        report(
+          relative(
+            root,
+            join(record.path, `${record.manifest.agent}.agent.md`),
+          ),
+          'agents using workers must include "agent" in tools',
+        );
       }
     }
 
     const listedScripts = new Set(record.manifest.scripts ?? []);
-    for (const agentFile of walkFiles(record.path).filter((file) => file.endsWith('.agent.md'))) {
+    for (const agentFile of walkFiles(record.path).filter((file) =>
+      file.endsWith('.agent.md'),
+    )) {
       const contents = readFileSync(agentFile, 'utf8');
-      for (const match of contents.matchAll(/\.github\/scripts\/([^\s"'`<>]+)/g)) {
+      for (const match of contents.matchAll(
+        /\.github\/scripts\/([^\s"'`<>]+)/g,
+      )) {
         const target = match[1].replace(/[.,;:!?)}\]]+$/, '');
         const [agentName, scriptName, ...extra] = target.split('/');
         if (
@@ -471,7 +578,10 @@ function validateAgents(index: IndexEntry[], skillNames: Set<string>): AgentReco
           extra.length > 0 ||
           !listedScripts.has(scriptName)
         ) {
-          report(relative(root, agentFile), `script reference is not listed in this agent's manifest: .github/scripts/${target}`);
+          report(
+            relative(root, agentFile),
+            `script reference is not listed in this agent's manifest: .github/scripts/${target}`,
+          );
         }
       }
     }
@@ -482,10 +592,13 @@ function validateAgents(index: IndexEntry[], skillNames: Set<string>): AgentReco
     if (entry.mode !== '120000' && entry.mode !== '160000') {
       continue;
     }
-    if (
-      protectedRoots.some((folder) => entry.path.startsWith(`${folder}/`))
-    ) {
-      report(entry.path, entry.mode === '120000' ? 'symlinks are not allowed in agent or skill folders' : 'submodules are not allowed in agent or skill folders');
+    if (protectedRoots.some((folder) => entry.path.startsWith(`${folder}/`))) {
+      report(
+        entry.path,
+        entry.mode === '120000'
+          ? 'symlinks are not allowed in agent or skill folders'
+          : 'submodules are not allowed in agent or skill folders',
+      );
     }
   }
 

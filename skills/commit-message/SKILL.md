@@ -2,6 +2,7 @@
 name: commit-message
 description: Write a commit message that matches the repository's style. Use when summarising staged changes for a commit.
 ---
+
 # Commit message
 
 1. Read recent history with `git log --oneline -20` to learn the style.

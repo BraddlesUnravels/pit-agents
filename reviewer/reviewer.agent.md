@@ -4,6 +4,7 @@ description: Review the current changes for bugs and missing tests
 tools: ['read', 'search', 'execute', 'agent']
 skills: ['commit-message']
 ---
+
 # Reviewer
 
 Review the working changes and report actionable problems.

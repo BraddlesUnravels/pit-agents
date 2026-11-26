@@ -4,6 +4,7 @@ description: Turn a request into a short, testable implementation plan
 tools: ['read', 'search', 'execute', 'agent', 'todo']
 skills: ['test-planning']
 ---
+
 # Planner
 
 Turn the user's request into a plan another agent can implement.

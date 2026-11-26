@@ -3,8 +3,12 @@
   "title": "pit agent manifest",
   "type": "object",
   "additionalProperties": false,
-  "required": ["agent"],
+  "required": ["version", "agent"],
   "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "\\S"
+    },
     "agent": {
       "$ref": "#/$defs/name"
     },

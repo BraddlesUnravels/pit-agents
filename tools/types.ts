@@ -8,9 +8,10 @@ export interface WorkerUse {
   worker: Name;
 }
 
-/** `<agent>/agent.manifest.json`. Only `agent` is required.
+/** `<agent>/agent.manifest.json`. `version` and `agent` are required.
  *  pit rejects unknown keys, wrong types and duplicate entries. */
 export interface AgentManifest {
+  version: string;
   agent: Name;
   workers?: Name[];
   skills?: Name[];

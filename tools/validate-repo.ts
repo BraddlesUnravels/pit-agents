@@ -18,7 +18,14 @@ const errors: string[] = [];
 const reservedAgentNames = new Set(['skills', 'tools', 'schema', 'docs']);
 const namePattern = /^(?!.*\.\.)[A-Za-z0-9][A-Za-z0-9._-]*$/;
 const skillNamePattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const manifestKeys = new Set(['agent', 'workers', 'skills', 'scripts', 'uses']);
+const manifestKeys = new Set([
+  'version',
+  'agent',
+  'workers',
+  'skills',
+  'scripts',
+  'uses',
+]);
 
 function report(path: string, message: string): void {
   errors.push(`${path}: ${message}`);
@@ -71,6 +78,9 @@ function parseManifest(path: string): AgentManifest | undefined {
     }
   }
 
+  if (typeof parsed.version !== 'string' || parsed.version.trim() === '') {
+    report(relative(root, path), '"version" must be a non-empty string');
+  }
   if (typeof parsed.agent !== 'string') {
     report(relative(root, path), '"agent" must be a string');
   }
@@ -122,6 +132,7 @@ function parseManifest(path: string): AgentManifest | undefined {
   }
 
   return {
+    version: typeof parsed.version === 'string' ? parsed.version : '',
     agent: typeof parsed.agent === 'string' ? parsed.agent : '',
     workers: isStringArray(parsed.workers) ? parsed.workers : undefined,
     skills: isStringArray(parsed.skills) ? parsed.skills : undefined,

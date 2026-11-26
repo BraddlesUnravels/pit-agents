@@ -1,7 +1,13 @@
 {
+  "version": "0.1.0",
   "agent": "planner",
-  "workers": ["planner-researcher"],
-  "skills": ["test-planning"],
-  "scripts": ["collect-context.sh"],
-  "uses": [{ "agent": "reviewer", "worker": "code-checker" }]
+  "workers": ["api-designer", "database-designer", "frontend-designer"],
+  "skills": [
+    "elicit-missing-requirements",
+    "review-project-recommendation",
+    "worker-coordination",
+    "general-design-resources",
+    "framework-data-resources"
+  ],
+  "scripts": ["collect-context.sh"]
 }

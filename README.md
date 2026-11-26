@@ -30,12 +30,12 @@ Agent files are installed flat, so every `.agent.md` filename must be unique acr
 | Skill entry point      | `skills/<skill>/SKILL.md`; front matter `name` must equal the folder name                          |
 | Script                 | `<agent>/scripts/<file>`, listed in `scripts`; no subfolders and executable                        |
 
-Every agent manifest uses only the supported keys: `agent`, `workers`, `skills`, `scripts`, and `uses`. The manifest's `agent` is required and must match its folder name.
+Every agent manifest uses only the supported keys: `version`, `agent`, `workers`, `skills`, `scripts`, and `uses`. The `version` must be a non-empty string, and `agent` must match its folder name; both are required.
 
 ## Adding an agent
 
 1. Create a top-level folder named for the agent.
-2. Add `<agent>/agent.manifest.json` with the matching `agent` name.
+2. Add `<agent>/agent.manifest.json` with a non-empty `version` and the matching `agent` name.
 3. Add `<agent>/<agent>.agent.md`. Include a one-line `description` in its front matter. If the manifest lists skills, use the same skills in the front matter.
 4. For each worker, add `<agent>/<worker>.agent.md`, list its name in `workers`, and set `user-invocable: false`.
 5. For each script, add it under `<agent>/scripts/`, list its filename in `scripts`, and make it executable with `chmod +x`.
